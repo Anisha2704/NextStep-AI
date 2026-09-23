@@ -19,8 +19,10 @@ import Badge from '../../components/ui/Badge';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Button from '../../components/ui/Button';
 import CareerGuidancePreview from '../../components/dashboard/CareerGuidancePreview';
+import SkillGapPreview from '../../components/dashboard/SkillGapPreview';
 
 const StatCard = ({ icon: Icon, label, value, color = 'primary' }) => {
+
 
   const colors = {
     primary: 'bg-primary-light text-primary',
@@ -130,8 +132,12 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* AI Career Guidance Preview / CTA Card */}
-      <CareerGuidancePreview />
+      {/* AI Career Guidance & Skill Gap Preview / CTA Cards */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <CareerGuidancePreview />
+        <SkillGapPreview />
+      </div>
+
 
 
       <div>

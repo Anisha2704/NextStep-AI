@@ -7,6 +7,7 @@ import Register from '../pages/auth/Register';
 import Dashboard from '../pages/dashboard/Dashboard';
 import Profile from '../pages/profile/Profile';
 import CareerPage from '../pages/career/CareerPage';
+import SkillsPage from '../pages/skills/SkillsPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
 
 const AppRoutes = () => {
@@ -35,12 +36,10 @@ const AppRoutes = () => {
           element={<PlaceholderPage title="Career Recommendations" />}
         />
         <Route path="/career/roadmap" element={<PlaceholderPage title="Career Roadmap" />} />
-        <Route
-          path="/skills"
-          element={<PlaceholderPage title="Skills" description="Skill assessment coming in Phase 4." />}
-        />
+        <Route path="/skills" element={<SkillsPage />} />
         <Route path="/skills/assessment" element={<PlaceholderPage title="Skill Assessment" />} />
-        <Route path="/skills/gaps" element={<PlaceholderPage title="Skill Gaps" />} />
+        <Route path="/skills/gaps" element={<SkillsPage />} />
+
         <Route path="/learning" element={<PlaceholderPage title="Learning" />} />
         <Route path="/learning/roadmap" element={<PlaceholderPage title="Learning Roadmap" />} />
         <Route path="/learning/courses" element={<PlaceholderPage title="Courses" />} />
