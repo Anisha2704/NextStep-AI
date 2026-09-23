@@ -6,6 +6,7 @@ import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import Dashboard from '../pages/dashboard/Dashboard';
 import Profile from '../pages/profile/Profile';
+import CareerPage from '../pages/career/CareerPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
 
 const AppRoutes = () => {
@@ -27,10 +28,8 @@ const AppRoutes = () => {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
-        <Route
-          path="/career"
-          element={<PlaceholderPage title="Career" description="Career recommendations and roadmaps coming in Phase 6." />}
-        />
+        <Route path="/career" element={<CareerPage />} />
+
         <Route
           path="/career/recommendations"
           element={<PlaceholderPage title="Career Recommendations" />}

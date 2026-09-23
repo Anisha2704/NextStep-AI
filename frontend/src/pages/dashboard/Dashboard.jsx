@@ -17,10 +17,11 @@ import Card, { CardHeader } from '../../components/ui/Card';
 import ProgressBar from '../../components/ui/ProgressBar';
 import Badge from '../../components/ui/Badge';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
-import ComingSoon from '../../components/common/ComingSoon';
 import Button from '../../components/ui/Button';
+import CareerGuidancePreview from '../../components/dashboard/CareerGuidancePreview';
 
 const StatCard = ({ icon: Icon, label, value, color = 'primary' }) => {
+
   const colors = {
     primary: 'bg-primary-light text-primary',
     cyan: 'bg-cyan-soft text-cyan',
@@ -64,9 +65,8 @@ const Dashboard = () => {
   const certCount = profile?.certifications?.length ?? 0;
 
   const futureFeatures = [
-    { icon: Briefcase, title: 'Career Match', desc: 'AI-powered career recommendations' },
-    { icon: Target, title: 'Skill Gap', desc: 'Identify skills you need to develop' },
-    { icon: BookOpen, title: 'Learning Progress', desc: 'Track your learning journey' },
+    { icon: Target, title: 'Skill Gap Analysis', desc: 'Identify skill gaps for target roles' },
+    { icon: BookOpen, title: 'Learning Roadmap', desc: 'Personalized step-by-step learning paths' },
     { icon: ClipboardCheck, title: 'Placement Readiness', desc: 'Prepare for job placements' },
   ];
 
@@ -130,9 +130,13 @@ const Dashboard = () => {
         </Card>
       </div>
 
+      {/* AI Career Guidance Preview / CTA Card */}
+      <CareerGuidancePreview />
+
+
       <div>
-        <h3 className="mb-4 text-lg font-semibold text-text-main">Upcoming Features</h3>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <h3 className="mb-4 text-lg font-semibold text-text-main">Upcoming AI Features</h3>
+        <div className="grid gap-4 sm:grid-cols-3">
           {futureFeatures.map((feature) => (
             <Card key={feature.title} className="relative overflow-hidden">
               <div className="flex items-start gap-4">
@@ -141,10 +145,10 @@ const Dashboard = () => {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-text-main">{feature.title}</h4>
+                    <h4 className="font-semibold text-text-main text-sm">{feature.title}</h4>
                     <Badge variant="default">Coming Soon</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-text-secondary">{feature.desc}</p>
+                  <p className="mt-1 text-xs text-text-secondary">{feature.desc}</p>
                 </div>
               </div>
             </Card>
@@ -154,5 +158,6 @@ const Dashboard = () => {
     </div>
   );
 };
+
 
 export default Dashboard;

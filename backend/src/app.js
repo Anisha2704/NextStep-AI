@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { sendSuccess } from './utils/response.js';
 
@@ -27,7 +28,9 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.use(errorHandler);
+
 
 export default app;
