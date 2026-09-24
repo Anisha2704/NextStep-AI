@@ -8,6 +8,8 @@ import Dashboard from '../pages/dashboard/Dashboard';
 import Profile from '../pages/profile/Profile';
 import CareerPage from '../pages/career/CareerPage';
 import SkillsPage from '../pages/skills/SkillsPage';
+import LearningPage from '../pages/learning/LearningPage';
+import AssessmentPage from '../pages/assessment/AssessmentPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
 
 const AppRoutes = () => {
@@ -37,13 +39,13 @@ const AppRoutes = () => {
         />
         <Route path="/career/roadmap" element={<PlaceholderPage title="Career Roadmap" />} />
         <Route path="/skills" element={<SkillsPage />} />
-        <Route path="/skills/assessment" element={<PlaceholderPage title="Skill Assessment" />} />
+        <Route path="/skills/assessment" element={<AssessmentPage />} />
         <Route path="/skills/gaps" element={<SkillsPage />} />
 
-        <Route path="/learning" element={<PlaceholderPage title="Learning" />} />
-        <Route path="/learning/roadmap" element={<PlaceholderPage title="Learning Roadmap" />} />
+        <Route path="/learning" element={<LearningPage />} />
+        <Route path="/learning/roadmap" element={<Navigate to="/learning" replace />} />
         <Route path="/learning/courses" element={<PlaceholderPage title="Courses" />} />
-        <Route path="/assessment" element={<PlaceholderPage title="Assessment" />} />
+        <Route path="/assessment" element={<AssessmentPage />} />
         <Route path="/resume" element={<PlaceholderPage title="Resume Analyzer" />} />
         <Route path="/placement" element={<PlaceholderPage title="Placement Readiness" />} />
         <Route path="/ai-coach" element={<PlaceholderPage title="AI Career Assistant" />} />

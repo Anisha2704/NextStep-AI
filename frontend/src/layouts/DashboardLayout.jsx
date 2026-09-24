@@ -157,6 +157,7 @@ const PAGE_TITLES = {
   '/profile': 'Profile',
   '/career': 'Career',
   '/skills': 'Skills',
+  '/skills/assessment': 'Assessment',
   '/learning': 'Learning',
   '/assessment': 'Assessment',
   '/resume': 'Resume',

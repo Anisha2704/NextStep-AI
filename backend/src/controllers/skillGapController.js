@@ -1,5 +1,6 @@
 import { analyzeSkillGap } from '../services/aiService.js';
 import { sendSuccess, sendError } from '../utils/response.js';
+import SkillGap from '../models/SkillGap.js';
 
 /**
  * Controller to analyze skill gaps for the authenticated user against a target role.
@@ -55,11 +56,28 @@ export const analyzeSkillGapController = async (req, res, next) => {
 
     const aiResponse = await analyzeSkillGap(profilePayload);
 
+    await SkillGap.findOneAndUpdate(
+      { user: user._id, targetRole: profilePayload.targetRole },
+      {
+        $set: {
+          summary: aiResponse.summary,
+          currentSkills: skills,
+          skillGaps: aiResponse.skillGaps,
+          missingSkills: (aiResponse.skillGaps || [])
+            .filter((gap) => gap.status === 'Missing')
+            .map((gap) => ({ name: gap.skill, priority: gap.priority })),
+        },
+      },
+      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+    );
+
     return sendSuccess(res, 200, 'Skill gap analysis completed successfully', aiResponse);
   } catch (error) {
     console.error('Error in analyzeSkillGapController:', error.message);
     const statusCode = error.statusCode || 500;
-    const message = error.message || 'Failed to analyze skill gap.';
+    const message = statusCode >= 500
+      ? 'Failed to analyze skill gap. Please try again.'
+      : error.message || 'Failed to analyze skill gap.';
     return sendError(res, statusCode, message);
   }
 };
