@@ -8,6 +8,7 @@ load_dotenv()
 class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+    AI_SERVICE_INTERNAL_TOKEN: str = os.getenv("AI_SERVICE_INTERNAL_TOKEN", "")
 
 
 

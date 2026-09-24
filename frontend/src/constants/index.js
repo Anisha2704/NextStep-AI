@@ -57,8 +57,8 @@ export const NAV_ITEMS = [
   { label: 'Skills', path: '/skills', icon: 'Brain' },
 
 
-  { label: 'Learning', path: '/learning', icon: 'BookOpen', comingSoon: true },
-  { label: 'Assessment', path: '/assessment', icon: 'ClipboardCheck', comingSoon: true },
+  { label: 'Learning', path: '/learning', icon: 'BookOpen' },
+  { label: 'Assessment', path: '/assessment', icon: 'ClipboardCheck' },
   { label: 'Resume', path: '/resume', icon: 'FileText', comingSoon: true },
   { label: 'Placement', path: '/placement', icon: 'Target', comingSoon: true },
 ];

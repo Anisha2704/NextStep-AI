@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import learningRoutes from './routes/learningRoutes.js';
+import assessmentRoutes from './routes/assessmentRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { sendSuccess } from './utils/response.js';
 
@@ -29,6 +31,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/learning', learningRoutes);
+app.use('/api/assessments', assessmentRoutes);
 
 app.use(errorHandler);
 

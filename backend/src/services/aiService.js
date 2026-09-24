@@ -115,3 +115,49 @@ export const analyzeSkillGap = async (profilePayload) => {
   }
 };
 
+/** Requests one structured learning roadmap from the existing AI service. */
+export const generateLearningRoadmap = async (profilePayload) => {
+  const url = `${AI_SERVICE_URL}/learning/roadmap/generate`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(process.env.AI_SERVICE_INTERNAL_TOKEN
+          ? { 'X-AI-Service-Token': process.env.AI_SERVICE_INTERNAL_TOKEN }
+          : {}),
+      },
+      body: JSON.stringify(profilePayload),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: response.statusText };
+      }
+      const error = new Error(
+        errorData.detail?.message || errorData.detail || errorData.message || 'Roadmap generation failed.'
+      );
+      error.statusCode = response.status === 504 ? 504 : response.status >= 500 ? 503 : response.status;
+      throw error;
+    }
+
+    return await response.json();
+  } catch (err) {
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      const error = new Error('Roadmap generation timed out. Please try again.');
+      error.statusCode = 504;
+      throw error;
+    }
+    if (err.statusCode) throw err;
+    console.error('Failed to communicate with FastAPI learning service:', err.message);
+    const error = new Error('Learning roadmap service is currently unavailable.');
+    error.statusCode = 503;
+    throw error;
+  }
+};
+
