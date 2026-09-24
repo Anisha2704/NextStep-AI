@@ -1,7 +1,6 @@
 import { getInitials } from '../../utils';
 import ProgressBar from '../ui/ProgressBar';
 import Badge from '../ui/Badge';
-import Button from '../ui/Button';
 import { MapPin, Mail, Phone, Camera } from 'lucide-react';
 
 const ProfileHeader = ({ profile, onSavePhoto }) => {
@@ -25,6 +24,7 @@ const ProfileHeader = ({ profile, onSavePhoto }) => {
           <button
             type="button"
             onClick={onSavePhoto}
+            aria-label="Update profile photo URL"
             className="absolute -bottom-1 -right-1 rounded-full bg-card p-1.5 shadow-md border border-border text-text-secondary hover:text-primary"
             title="Update photo URL"
           >

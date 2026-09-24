@@ -2,7 +2,7 @@ import logging
 from typing import List, Dict, Any
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
-from app.services.gemini_service import get_gemini_model
+from app.services.gemini_service import get_gemini_model, is_gemini_timeout_error
 from app.schemas.skill_gap import SkillGapRequest, SkillGapResponse, SkillGapItem
 
 logger = logging.getLogger(__name__)
@@ -256,6 +256,9 @@ async def generate_skill_gap_analysis(request: SkillGapRequest) -> SkillGapRespo
             elif isinstance(result, dict):
                 return SkillGapResponse(**result)
         except Exception as struct_err:
+            if is_gemini_timeout_error(struct_err):
+                logger.warning("Structured skill gap request timed out; using rule-based fallback.")
+                raise
             logger.warning(f"Structured output call failed for skill gap analysis, falling back to Pydantic parser: {str(struct_err)}")
 
         # Fallback with Pydantic parser

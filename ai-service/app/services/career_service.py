@@ -2,7 +2,7 @@ import logging
 import json
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
-from app.services.gemini_service import get_gemini_model
+from app.services.gemini_service import get_gemini_model, is_gemini_timeout_error
 from app.schemas.career import CareerProfileRequest, CareerRecommendationResponse, RecommendedCareer
 
 logger = logging.getLogger(__name__)
@@ -109,6 +109,9 @@ async def generate_career_recommendations(profile: CareerProfileRequest) -> Care
             elif isinstance(result, dict):
                 return CareerRecommendationResponse(**result)
         except Exception as struct_err:
+            if is_gemini_timeout_error(struct_err):
+                logger.warning("Structured career guidance request timed out; using rule-based fallback.")
+                raise
             logger.warning(f"Structured output call failed, attempting Pydantic parser fallback: {str(struct_err)}")
 
         # Fallback with Pydantic parser

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getProfile, updateProfile } from '../../services/userService';
+import { getProfile, updateProfile, createProfile } from '../../services/userService';
 import { getErrorMessage } from '../../utils';
 
 const initialState = {
@@ -23,9 +23,20 @@ export const fetchProfile = createAsyncThunk(
 
 export const saveProfile = createAsyncThunk(
   'user/saveProfile',
-  async (profileData, { rejectWithValue }) => {
+  async (profileData, { rejectWithValue, getState }) => {
     try {
-      const response = await updateProfile(profileData);
+      const existingProfile = getState().user.profile;
+      let response;
+      if (existingProfile && existingProfile.profileInitialized === false) {
+        try {
+          response = await createProfile(profileData);
+        } catch (error) {
+          if (error.response?.status !== 409) throw error;
+          response = await updateProfile(profileData);
+        }
+      } else {
+        response = await updateProfile(profileData);
+      }
       return response.user;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));

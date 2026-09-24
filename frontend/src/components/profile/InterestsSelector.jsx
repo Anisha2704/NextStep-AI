@@ -30,7 +30,8 @@ const InterestsSelector = ({ interests = [], onChange, onSave, saving }) => {
               key={interest}
               type="button"
               onClick={() => toggleInterest(interest)}
-              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+              aria-pressed={selected}
+              className={`rounded-full border px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${
                 selected
                   ? 'border-primary bg-primary text-white'
                   : 'border-border bg-card text-text-secondary hover:border-primary/30 hover:bg-lavender'

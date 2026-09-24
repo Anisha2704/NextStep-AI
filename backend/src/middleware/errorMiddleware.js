@@ -1,7 +1,9 @@
 import { sendError } from '../utils/response.js';
 
 const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
+  if (err.type === 'entity.parse.failed') {
+    return sendError(res, 400, 'Malformed JSON request body');
+  }
 
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map((e) => e.message);
@@ -18,7 +20,11 @@ const errorHandler = (err, req, res, next) => {
   }
 
   const statusCode = err.statusCode || err.status || 500;
-  return sendError(res, statusCode, err.message || 'Internal server error');
+  if (statusCode >= 500) {
+    console.error(err.stack);
+    return sendError(res, 500, 'Internal server error');
+  }
+  return sendError(res, statusCode, err.message || 'Request failed');
 };
 
 export default errorHandler;

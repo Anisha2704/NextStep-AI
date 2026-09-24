@@ -10,6 +10,11 @@ export const updateProfile = async (profileData) => {
   return data;
 };
 
+export const createProfile = async (profileData) => {
+  const { data } = await api.post('/users/profile', profileData);
+  return data;
+};
+
 export const addSkill = async (skillData) => {
   const { data } = await api.post('/users/skills', skillData);
   return data;

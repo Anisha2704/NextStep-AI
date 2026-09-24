@@ -1,5 +1,15 @@
 import * as userService from '../services/userService.js';
 import { sendSuccess, sendError } from '../utils/response.js';
+import { validationResult } from 'express-validator';
+
+const validateRequest = (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    sendError(res, 400, 'Validation failed', errors.array().map(({ msg, path }) => ({ field: path, message: msg })));
+    return false;
+  }
+  return true;
+};
 
 export const getProfile = async (req, res, next) => {
   try {
@@ -12,6 +22,7 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
+    if (!validateRequest(req, res)) return;
     const profile = await userService.updateProfile(req.user._id, req.body);
     return sendSuccess(res, 200, 'Profile updated', { user: profile });
   } catch (error) {
@@ -19,8 +30,28 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
+export const createProfile = async (req, res, next) => {
+  try {
+    if (!validateRequest(req, res)) return;
+    const profile = await userService.createProfile(req.user._id, req.body);
+    return sendSuccess(res, 201, 'Profile created', { user: profile });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProfile = async (req, res, next) => {
+  try {
+    await userService.deleteProfile(req.user._id);
+    return sendSuccess(res, 200, 'Profile data deleted');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const addSkill = async (req, res, next) => {
   try {
+    if (!validateRequest(req, res)) return;
     const { name, category, proficiency, yearsOfExperience } = req.body;
     if (!name?.trim()) {
       return sendError(res, 400, 'Skill name is required');
@@ -41,6 +72,7 @@ export const addSkill = async (req, res, next) => {
 
 export const updateSkill = async (req, res, next) => {
   try {
+    if (!validateRequest(req, res)) return;
     const skill = await userService.updateSkill(req.user._id, req.params.skillId, req.body);
     return sendSuccess(res, 200, 'Skill updated', { skill });
   } catch (error) {

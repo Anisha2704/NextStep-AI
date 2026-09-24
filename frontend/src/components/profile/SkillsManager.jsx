@@ -153,12 +153,14 @@ const SkillsManager = ({ skills = [], onRefresh }) => {
               <div className="flex gap-1">
                 <button
                   onClick={() => handleEdit(skill)}
+                  aria-label={`Edit ${skill.name}`}
                   className="rounded-lg p-1.5 text-text-secondary hover:bg-lavender hover:text-primary"
                 >
                   <Pencil size={16} />
                 </button>
                 <button
                   onClick={() => handleDelete(skill._id || skill.id)}
+                  aria-label={`Delete ${skill.name}`}
                   className="rounded-lg p-1.5 text-text-secondary hover:bg-error/10 hover:text-error"
                 >
                   <Trash2 size={16} />
