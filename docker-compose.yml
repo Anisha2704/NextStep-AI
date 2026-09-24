@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  mongo:
+    image: mongo:latest
+    container_name: nextstep-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
   backend:
     build:
       context: ./backend
@@ -11,6 +20,7 @@ services:
       - ./backend/.env
     depends_on:
       - ai-service
+      - mongo
     restart: unless-stopped
 
   ai-service:
@@ -34,3 +44,7 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  mongo-data:
+

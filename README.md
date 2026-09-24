@@ -62,6 +62,30 @@ npm run dev
 
 Open http://localhost:5173
 
+## Running with Docker
+
+Make sure [Docker Desktop](https://www.docker.com/products/docker-desktop/) is running on your machine.
+
+```bash
+# Build and start all services (Frontend, Backend, AI Service, and MongoDB)
+docker compose up --build
+
+# To run in detached mode (background)
+docker compose up -d --build
+
+# To view logs
+docker compose logs -f
+
+# To stop all containers
+docker compose down
+```
+
+Services will be available at:
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:5000`
+- **AI Microservice**: `http://localhost:8000`
+- **MongoDB**: `localhost:27017`
+
 ## Environment Variables
 
 See `.env.example` in each service folder.
