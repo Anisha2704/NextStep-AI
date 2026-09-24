@@ -33,7 +33,7 @@ export const calculateProfileCompletion = (user) => {
   }
 
   const eduFields = user.education || {};
-  const eduKeys = ['college', 'degree', 'branch', 'currentYear', 'graduationYear', 'cgpa'];
+  const eduKeys = ['level', 'college', 'degree', 'branch', 'currentYear', 'graduationYear', 'cgpa'];
   const eduFilled = eduKeys.filter((k) => isFilled(eduFields[k])).length;
   const eduScore = Math.round((eduFilled / eduKeys.length) * PROFILE_WEIGHTS.education);
   score += eduScore;
@@ -60,7 +60,7 @@ export const calculateProfileCompletion = (user) => {
   }
 
   const goalFields = user.careerGoals || {};
-  const goalKeys = ['targetJobRole', 'targetIndustry', 'preferredWorkType', 'preferredLocation', 'description'];
+  const goalKeys = ['targetJobRole', 'targetIndustry', 'preferredWorkType', 'preferredLocation', 'description', 'preferredDomains'];
   const goalFilled = goalKeys.filter((k) => isFilled(goalFields[k])).length;
   const goalScore = Math.round((goalFilled / goalKeys.length) * PROFILE_WEIGHTS.careerGoals);
   score += goalScore;
@@ -99,7 +99,7 @@ export const calculateProfileCompletion = (user) => {
 };
 
 export const getProfile = async (userId) => {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select('+profileInitialized');
   if (!user) {
     const error = new Error('User not found');
     error.statusCode = 404;
@@ -107,6 +107,7 @@ export const getProfile = async (userId) => {
   }
 
   const profile = user.toSafeObject();
+  profile.profileInitialized = user.profileInitialized;
   profile.profileCompletion = calculateProfileCompletion(user);
   return profile;
 };
@@ -128,6 +129,7 @@ export const updateProfile = async (userId, updates) => {
     'education',
     'interests',
     'careerGoals',
+    'experienceLevel',
   ];
 
   allowedFields.forEach((field) => {
@@ -140,10 +142,65 @@ export const updateProfile = async (userId, updates) => {
     }
   });
 
+  user.profileInitialized = true;
   await user.save();
   const profile = user.toSafeObject();
+  profile.profileInitialized = true;
   profile.profileCompletion = calculateProfileCompletion(user);
   return profile;
+};
+
+export const createProfile = async (userId, profileData) => {
+  const allowedFields = ['name', 'bio', 'profilePhoto', 'location', 'phone', 'education', 'interests', 'careerGoals', 'experienceLevel'];
+  const updates = { profileInitialized: true };
+  for (const field of allowedFields) {
+    if (profileData[field] !== undefined) {
+      if (field === 'education' || field === 'careerGoals') {
+        for (const [nestedField, value] of Object.entries(profileData[field])) {
+          updates[`${field}.${nestedField}`] = value;
+        }
+      } else {
+        updates[field] = profileData[field];
+      }
+    }
+  }
+  const user = await User.findOneAndUpdate(
+    { _id: userId, profileInitialized: { $ne: true } },
+    { $set: updates },
+    { new: true, runValidators: true }
+  );
+  if (!user) {
+    const exists = await User.exists({ _id: userId });
+    const error = new Error(exists ? 'Profile already exists. Update the existing profile instead.' : 'User not found');
+    error.statusCode = exists ? 409 : 404;
+    throw error;
+  }
+  const profile = user.toSafeObject();
+  profile.profileInitialized = true;
+  profile.profileCompletion = calculateProfileCompletion(user);
+  return profile;
+};
+
+export const deleteProfile = async (userId) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 404;
+    throw error;
+  }
+  user.bio = '';
+  user.profilePhoto = '';
+  user.location = '';
+  user.phone = '';
+  user.education = {};
+  user.experienceLevel = '';
+  user.skills = [];
+  user.interests = [];
+  user.careerGoals = {};
+  user.projects = [];
+  user.certifications = [];
+  user.profileInitialized = false;
+  await user.save();
 };
 
 export const addSkill = async (userId, skillData) => {
@@ -151,6 +208,12 @@ export const addSkill = async (userId, skillData) => {
   if (!user) {
     const error = new Error('User not found');
     error.statusCode = 404;
+    throw error;
+  }
+
+  if (user.skills.length >= 50) {
+    const error = new Error('A maximum of 50 skills is allowed');
+    error.statusCode = 400;
     throw error;
   }
 

@@ -3,7 +3,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Textarea from '../ui/Textarea';
 import Button from '../ui/Button';
-import { WORK_TYPES } from '../../constants';
+import { WORK_TYPES, CAREER_DOMAIN_OPTIONS } from '../../constants';
 
 const CareerGoalForm = ({ data, onChange, onSave, saving }) => {
   return (
@@ -18,6 +18,27 @@ const CareerGoalForm = ({ data, onChange, onSave, saving }) => {
         }
       />
       <div className="grid gap-4 sm:grid-cols-2">
+        <fieldset className="sm:col-span-2">
+          <legend className="mb-2 text-sm font-medium text-text-main">Preferred career domains</legend>
+          <div className="flex flex-wrap gap-2">
+            {CAREER_DOMAIN_OPTIONS.map((domain) => {
+              const selected = (data.preferredDomains || []).includes(domain);
+              return (
+                <button
+                  key={domain}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => onChange('preferredDomains', selected
+                    ? data.preferredDomains.filter((item) => item !== domain)
+                    : [...(data.preferredDomains || []), domain])}
+                  className={`rounded-full border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary/30 ${selected ? 'border-primary bg-primary text-white' : 'border-border bg-card text-text-secondary hover:bg-lavender'}`}
+                >
+                  {domain}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
         <Input
           label="Target Job Role"
           placeholder="Machine Learning Engineer"

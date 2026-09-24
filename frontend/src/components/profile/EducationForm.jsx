@@ -1,8 +1,10 @@
 import Card, { CardHeader } from '../ui/Card';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import Select from '../ui/Select';
+import { EDUCATION_LEVELS, EXPERIENCE_LEVELS } from '../../constants';
 
-const EducationForm = ({ data, onChange, onSave, saving }) => {
+const EducationForm = ({ data, experienceLevel, onChange, onExperienceChange, onSave, saving }) => {
   return (
     <Card>
       <CardHeader
@@ -15,6 +17,18 @@ const EducationForm = ({ data, onChange, onSave, saving }) => {
         }
       />
       <div className="grid gap-4 sm:grid-cols-2">
+        <Select
+          label="Education level"
+          value={data.level || ''}
+          onChange={(e) => onChange('level', e.target.value)}
+          options={[{ value: '', label: 'Select education level' }, ...EDUCATION_LEVELS.map((level) => ({ value: level, label: level }))]}
+        />
+        <Select
+          label="Experience level"
+          value={experienceLevel || ''}
+          onChange={(e) => onExperienceChange(e.target.value)}
+          options={[{ value: '', label: 'Select experience level' }, ...EXPERIENCE_LEVELS.map((level) => ({ value: level, label: level }))]}
+        />
         <Input
           label="College / University"
           value={data.college || ''}
@@ -41,9 +55,12 @@ const EducationForm = ({ data, onChange, onSave, saving }) => {
         />
         <Input
           label="Graduation Year"
+          type="number"
+          min="1950"
+          max="2150"
           placeholder="2026"
-          value={data.graduationYear || ''}
-          onChange={(e) => onChange('graduationYear', e.target.value)}
+          value={data.graduationYear ?? ''}
+          onChange={(e) => onChange('graduationYear', e.target.value === '' ? '' : Number(e.target.value))}
         />
         <Input
           label="CGPA / Percentage"

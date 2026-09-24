@@ -1,15 +1,16 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { EDUCATION_LEVELS, EXPERIENCE_LEVELS, SKILL_PROFICIENCIES, WORK_TYPES } from '../constants/profile.js';
 
 const skillSchema = new mongoose.Schema({
-  name: { type: String, required: true, trim: true },
-  category: { type: String, trim: true, default: '' },
+  name: { type: String, required: true, trim: true, maxlength: 80 },
+  category: { type: String, trim: true, default: '', maxlength: 60 },
   proficiency: {
     type: String,
-    enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'],
+    enum: SKILL_PROFICIENCIES,
     default: 'Beginner',
   },
-  yearsOfExperience: { type: Number, default: 0, min: 0 },
+  yearsOfExperience: { type: Number, default: 0, min: 0, max: 80 },
 });
 
 const projectSchema = new mongoose.Schema({
@@ -29,11 +30,16 @@ const certificationSchema = new mongoose.Schema({
 });
 
 const educationSchema = new mongoose.Schema({
-  college: { type: String, default: '' },
-  degree: { type: String, default: '' },
-  branch: { type: String, default: '' },
+  level: {
+    type: String,
+    enum: ['', ...EDUCATION_LEVELS],
+    default: '',
+  },
+  college: { type: String, default: '', maxlength: 160 },
+  degree: { type: String, default: '', maxlength: 120 },
+  branch: { type: String, default: '', maxlength: 120 },
   currentYear: { type: String, default: '' },
-  graduationYear: { type: String, default: '' },
+  graduationYear: { type: Number, min: 1950, max: 2150 },
   cgpa: { type: String, default: '' },
 });
 
@@ -42,16 +48,21 @@ const careerGoalsSchema = new mongoose.Schema({
   targetIndustry: { type: String, default: '' },
   preferredWorkType: {
     type: String,
-    enum: ['Remote', 'Hybrid', 'On-site', ''],
+    enum: ['', ...WORK_TYPES],
     default: '',
   },
   preferredLocation: { type: String, default: '' },
   description: { type: String, default: '' },
+  preferredDomains: {
+    type: [{ type: String, trim: true, maxlength: 60 }],
+    validate: [(items) => items.length <= 12, 'A maximum of 12 career domains is allowed'],
+    default: [],
+  },
 });
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true, minlength: 2, maxlength: 100 },
     email: {
       type: String,
       required: true,
@@ -65,13 +76,27 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'admin'],
       default: 'student',
     },
+    experienceLevel: {
+      type: String,
+      enum: ['', ...EXPERIENCE_LEVELS],
+      default: '',
+    },
+    profileInitialized: { type: Boolean, default: false, select: false },
     profilePhoto: { type: String, default: '' },
     bio: { type: String, default: '' },
     location: { type: String, default: '' },
     phone: { type: String, default: '' },
     education: { type: educationSchema, default: () => ({}) },
-    skills: [skillSchema],
-    interests: [{ type: String, trim: true }],
+    skills: {
+      type: [skillSchema],
+      validate: [(items) => items.length <= 50, 'A maximum of 50 skills is allowed'],
+      default: [],
+    },
+    interests: {
+      type: [{ type: String, trim: true, maxlength: 60 }],
+      validate: [(items) => items.length <= 20, 'A maximum of 20 interests is allowed'],
+      default: [],
+    },
     careerGoals: { type: careerGoalsSchema, default: () => ({}) },
     projects: [projectSchema],
     certifications: [certificationSchema],

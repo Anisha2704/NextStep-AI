@@ -1,4 +1,6 @@
 export const PROFICIENCY_LEVELS = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+export const EDUCATION_LEVELS = ['High School', 'Diploma', 'Associate', 'Bachelor', 'Master', 'Doctorate', 'Other'];
+export const EXPERIENCE_LEVELS = ['Student', 'Entry-level', 'Early career', 'Mid career', 'Experienced'];
 
 export const WORK_TYPES = ['Remote', 'Hybrid', 'On-site'];
 
@@ -13,6 +15,19 @@ export const INTEREST_OPTIONS = [
   'Mobile Development',
   'DevOps',
   'Machine Learning',
+];
+
+export const CAREER_DOMAIN_OPTIONS = [
+  'Software Engineering',
+  'Data & Analytics',
+  'Artificial Intelligence',
+  'Cloud & DevOps',
+  'Cybersecurity',
+  'Product & Design',
+  'Business & Finance',
+  'Healthcare',
+  'Education',
+  'Research',
 ];
 
 export const SKILL_CATEGORIES = [

@@ -11,6 +11,11 @@ import ProjectsManager from '../../components/profile/ProjectsManager';
 import CertificationManager from '../../components/profile/CertificationManager';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import Alert from '../../components/ui/Alert';
+import { validateFullName, validateGraduationYear } from '../../utils/profileValidation';
+
+const pickFields = (value, fields) => Object.fromEntries(fields
+  .filter((field) => value[field] !== undefined)
+  .map((field) => [field, value[field]]));
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -18,9 +23,11 @@ const Profile = () => {
 
   const [basicInfo, setBasicInfo] = useState({});
   const [education, setEducation] = useState({});
+  const [experienceLevel, setExperienceLevel] = useState('');
   const [interests, setInterests] = useState([]);
   const [careerGoals, setCareerGoals] = useState({});
   const [successMsg, setSuccessMsg] = useState('');
+  const [validationMessage, setValidationMessage] = useState('');
 
   useEffect(() => {
     dispatch(fetchProfile());
@@ -37,6 +44,7 @@ const Profile = () => {
         profilePhoto: profile.profilePhoto || '',
       });
       setEducation(profile.education || {});
+      setExperienceLevel(profile.experienceLevel || '');
       setInterests(profile.interests || []);
       setCareerGoals(profile.careerGoals || {});
     }
@@ -50,12 +58,26 @@ const Profile = () => {
   };
 
   const saveBasicInfo = async () => {
-    const result = await dispatch(saveProfile(basicInfo));
+    const nameError = validateFullName(basicInfo.name || '');
+    if (nameError) {
+      setValidationMessage(nameError);
+      return;
+    }
+    setValidationMessage('');
+    const profileFields = Object.fromEntries(Object.entries(basicInfo).filter(([key]) => key !== 'email'));
+    const result = await dispatch(saveProfile(profileFields));
     if (saveProfile.fulfilled.match(result)) showSuccess('Basic information saved');
   };
 
   const saveEducation = async () => {
-    const result = await dispatch(saveProfile({ education }));
+    const yearError = validateGraduationYear(education.graduationYear);
+    if (yearError) {
+      setValidationMessage(yearError);
+      return;
+    }
+    setValidationMessage('');
+    const educationFields = pickFields(education, ['level', 'college', 'degree', 'branch', 'currentYear', 'graduationYear', 'cgpa']);
+    const result = await dispatch(saveProfile({ education: educationFields, experienceLevel }));
     if (saveProfile.fulfilled.match(result)) showSuccess('Education saved');
   };
 
@@ -65,7 +87,8 @@ const Profile = () => {
   };
 
   const saveCareerGoals = async () => {
-    const result = await dispatch(saveProfile({ careerGoals }));
+    const goals = pickFields(careerGoals, ['targetJobRole', 'targetIndustry', 'preferredWorkType', 'preferredLocation', 'description', 'preferredDomains']);
+    const result = await dispatch(saveProfile({ careerGoals: goals }));
     if (saveProfile.fulfilled.match(result)) showSuccess('Career goals saved');
   };
 
@@ -87,7 +110,11 @@ const Profile = () => {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      {!profile?.profileInitialized && (
+        <Alert type="info" message="Welcome! Add your education, skills, and career interests to personalize your recommendations. Save any section to start your profile." />
+      )}
       {error && <Alert type="error" message={error} />}
+      {validationMessage && <Alert type="error" message={validationMessage} />}
       {successMsg && <Alert type="success" message={successMsg} />}
 
       <ProfileHeader
@@ -96,7 +123,7 @@ const Profile = () => {
           const url = window.prompt('Enter profile photo URL:', basicInfo.profilePhoto || '');
           if (url !== null) {
             handleBasicChange('profilePhoto', url);
-            dispatch(saveProfile({ ...basicInfo, profilePhoto: url }));
+            dispatch(saveProfile({ profilePhoto: url }));
           }
         }}
       />
@@ -110,6 +137,8 @@ const Profile = () => {
 
       <EducationForm
         data={education}
+        experienceLevel={experienceLevel}
+        onExperienceChange={setExperienceLevel}
         onChange={handleEducationChange}
         onSave={saveEducation}
         saving={saving}

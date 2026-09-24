@@ -18,7 +18,7 @@ export const getCareerRecommendations = async (profilePayload) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(profilePayload),
-      signal: AbortSignal.timeout(20000), // 20-second timeout for AI completion
+      signal: AbortSignal.timeout(60000), // 60-second timeout for AI completion
     });
 
     if (!response.ok) {
@@ -41,8 +41,8 @@ export const getCareerRecommendations = async (profilePayload) => {
     const data = await response.json();
     return data;
   } catch (err) {
-    if (err.name === 'AbortError') {
-      console.error('FastAPI AI service request timed out after 20s');
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      console.error('FastAPI AI service request timed out after 60s');
       const error = new Error('AI service request timed out.');
       error.statusCode = 504;
       throw error;
@@ -74,7 +74,7 @@ export const analyzeSkillGap = async (profilePayload) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(profilePayload),
-      signal: AbortSignal.timeout(25000), // 25-second timeout for AI analysis
+      signal: AbortSignal.timeout(60000), // 60-second timeout for AI analysis
     });
 
     if (!response.ok) {
@@ -97,8 +97,8 @@ export const analyzeSkillGap = async (profilePayload) => {
     const data = await response.json();
     return data;
   } catch (err) {
-    if (err.name === 'AbortError') {
-      console.error('FastAPI Skill Gap analysis timed out after 25s');
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      console.error('FastAPI Skill Gap analysis timed out after 60s');
       const error = new Error('AI service request timed out.');
       error.statusCode = 504;
       throw error;
