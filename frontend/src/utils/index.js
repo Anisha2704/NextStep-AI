@@ -21,9 +21,13 @@ export const validateEmail = (email) => {
 };
 
 export const getErrorMessage = (error) => {
-  if (error.response?.data?.message) return error.response.data.message;
   if (error.response?.data?.errors?.length) {
-    return error.response.data.errors.map((e) => e.msg || e).join(', ');
+    return error.response.data.errors.map((item) => {
+      if (typeof item === 'string') return item;
+      const message = item.message || item.msg || 'Invalid value';
+      return item.field ? `${item.field}: ${message}` : message;
+    }).join(', ');
   }
+  if (error.response?.data?.message) return error.response.data.message;
   return error.message || 'Something went wrong';
 };

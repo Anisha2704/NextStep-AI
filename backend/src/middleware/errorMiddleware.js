@@ -5,6 +5,10 @@ const errorHandler = (err, req, res, next) => {
     return sendError(res, 400, 'Malformed JSON request body');
   }
 
+  if (err.type === 'entity.too.large') {
+    return sendError(res, 413, 'Request payload exceeds the allowed size.');
+  }
+
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map((e) => e.message);
     return sendError(res, 400, 'Validation failed', messages);

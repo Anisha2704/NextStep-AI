@@ -1,5 +1,6 @@
 import LearningPath from '../models/LearningPath.js';
 import SkillGap from '../models/SkillGap.js';
+import { publishNotification } from './notificationService.js';
 import { generateLearningRoadmap as requestRoadmap } from './aiService.js';
 
 const serviceError = (statusCode, message) => Object.assign(new Error(message), { statusCode });
@@ -284,6 +285,13 @@ export const generateRoadmapForUser = async (user, confirmRegeneration = false) 
       }
       throw error;
     }
+    await publishNotification({
+      userId: user._id,
+      type: 'learning',
+      title: 'Learning roadmap is ready',
+      message: `Your ${targetRole} learning roadmap${generationSource === 'skill_gap_fallback' ? ' is based on your saved skill gaps while AI generation is unavailable' : ' has been generated'}.`,
+      link: '/learning',
+    });
     return serializeRoadmap(existing);
   }
 
@@ -310,6 +318,13 @@ export const generateRoadmapForUser = async (user, confirmRegeneration = false) 
     }
     throw error;
   }
+  await publishNotification({
+    userId: user._id,
+    type: 'learning',
+    title: 'Learning roadmap is ready',
+    message: `Your ${targetRole} learning roadmap${generationSource === 'skill_gap_fallback' ? ' is based on your saved skill gaps while AI generation is unavailable' : ' has been generated'}.`,
+    link: '/learning',
+  });
   return serializeRoadmap(roadmap);
 };
 
@@ -327,9 +342,19 @@ export const updateRoadmapMilestone = async (userId, milestoneId, status) => {
   }
   if (!selectedMilestone) throw serviceError(404, 'Roadmap milestone not found.');
 
+  const newlyCompleted = status === 'completed' && selectedMilestone.status !== 'completed';
   selectedMilestone.status = status;
   selectedMilestone.completedAt = status === 'completed' ? new Date() : null;
   updateProgress(roadmap);
   await roadmap.save();
+  if (newlyCompleted) {
+    await publishNotification({
+      userId,
+      type: 'milestone',
+      title: 'Learning milestone completed',
+      message: `You completed “${selectedMilestone.title}” on your ${roadmap.targetRole} roadmap.`,
+      link: '/learning',
+    });
+  }
   return serializeRoadmap(roadmap);
 };

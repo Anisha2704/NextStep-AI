@@ -7,10 +7,7 @@ import {
   FolderGit2,
   Award,
   Briefcase,
-  Target,
   TrendingUp,
-  BookOpen,
-  ClipboardCheck,
 } from 'lucide-react';
 import { fetchProfile } from '../../store/slices/userSlice';
 import Card, { CardHeader } from '../../components/ui/Card';
@@ -65,12 +62,6 @@ const Dashboard = () => {
   const skillCount = profile?.skills?.length ?? 0;
   const projectCount = profile?.projects?.length ?? 0;
   const certCount = profile?.certifications?.length ?? 0;
-
-  const futureFeatures = [
-    { icon: Target, title: 'Skill Gap Analysis', desc: 'Identify skill gaps for target roles' },
-    { icon: BookOpen, title: 'Learning Roadmap', desc: 'Personalized step-by-step learning paths' },
-    { icon: ClipboardCheck, title: 'Placement Readiness', desc: 'Prepare for job placements' },
-  ];
 
   return (
     <div className="space-y-6">
@@ -138,29 +129,6 @@ const Dashboard = () => {
         <SkillGapPreview />
       </div>
 
-
-
-      <div>
-        <h3 className="mb-4 text-lg font-semibold text-text-main">Upcoming AI Features</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {futureFeatures.map((feature) => (
-            <Card key={feature.title} className="relative overflow-hidden">
-              <div className="flex items-start gap-4">
-                <div className="rounded-xl bg-lavender p-3">
-                  <feature.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-semibold text-text-main text-sm">{feature.title}</h4>
-                    <Badge variant="default">Coming Soon</Badge>
-                  </div>
-                  <p className="mt-1 text-xs text-text-secondary">{feature.desc}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

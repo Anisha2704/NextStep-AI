@@ -10,7 +10,10 @@ import CareerPage from '../pages/career/CareerPage';
 import SkillsPage from '../pages/skills/SkillsPage';
 import LearningPage from '../pages/learning/LearningPage';
 import AssessmentPage from '../pages/assessment/AssessmentPage';
+import ResumePage from '../pages/resume/ResumePage';
+import PlacementPage from '../pages/placement/PlacementPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
+import NotificationsPage from '../pages/notifications/NotificationsPage';
 
 const AppRoutes = () => {
   return (
@@ -46,8 +49,9 @@ const AppRoutes = () => {
         <Route path="/learning/roadmap" element={<Navigate to="/learning" replace />} />
         <Route path="/learning/courses" element={<PlaceholderPage title="Courses" />} />
         <Route path="/assessment" element={<AssessmentPage />} />
-        <Route path="/resume" element={<PlaceholderPage title="Resume Analyzer" />} />
-        <Route path="/placement" element={<PlaceholderPage title="Placement Readiness" />} />
+        <Route path="/resume" element={<ResumePage />} />
+        <Route path="/placement" element={<PlacementPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/ai-coach" element={<PlaceholderPage title="AI Career Assistant" />} />
         <Route path="/admin" element={<PlaceholderPage title="Admin Dashboard" />} />
       </Route>

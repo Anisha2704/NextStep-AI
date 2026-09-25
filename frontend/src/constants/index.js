@@ -59,6 +59,6 @@ export const NAV_ITEMS = [
 
   { label: 'Learning', path: '/learning', icon: 'BookOpen' },
   { label: 'Assessment', path: '/assessment', icon: 'ClipboardCheck' },
-  { label: 'Resume', path: '/resume', icon: 'FileText', comingSoon: true },
-  { label: 'Placement', path: '/placement', icon: 'Target', comingSoon: true },
+  { label: 'Resume', path: '/resume', icon: 'FileText' },
+  { label: 'Placement', path: '/placement', icon: 'Target' },
 ];
