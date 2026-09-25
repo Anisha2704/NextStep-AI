@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   LayoutDashboard,
@@ -20,6 +20,14 @@ import { logout } from '../store/slices/authSlice';
 import Logo from '../components/common/Logo';
 import { getInitials } from '../utils';
 import { NAV_ITEMS } from '../constants';
+import NotificationItem from '../components/notifications/NotificationItem';
+import {
+  fetchNotifications,
+  fetchNotificationPreferences,
+  markAllRead,
+  markRead,
+  saveNotificationPreferences,
+} from '../store/slices/notificationSlice';
 
 const iconMap = {
   LayoutDashboard,
@@ -119,6 +127,31 @@ const Sidebar = ({ isOpen, onClose }) => {
 
 const Header = ({ onMenuClick, title }) => {
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { notifications, unreadCount, preferences, emailDeliveryConfigured, preferencesLoading, error: notificationError } = useSelector((state) => state.notifications);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notificationMenuRef = useRef(null);
+
+  useEffect(() => {
+    dispatch(fetchNotifications(50));
+    dispatch(fetchNotificationPreferences());
+    const interval = window.setInterval(() => dispatch(fetchNotifications(50)), 60000);
+    return () => window.clearInterval(interval);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!notificationsOpen) return undefined;
+    const closeOnOutsideClick = (event) => {
+      if (!notificationMenuRef.current?.contains(event.target)) setNotificationsOpen(false);
+    };
+    const closeOnEscape = (event) => { if (event.key === 'Escape') setNotificationsOpen(false); };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [notificationsOpen]);
 
   return (
     <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-border bg-card/80 px-4 py-4 backdrop-blur-sm lg:px-8">
@@ -141,9 +174,55 @@ const Header = ({ onMenuClick, title }) => {
             className="w-48 bg-transparent text-sm outline-none placeholder:text-text-secondary/60"
           />
         </div>
-        <button className="rounded-lg p-2 text-text-secondary hover:bg-lavender">
-          <Bell size={20} />
-        </button>
+        <div className="relative" ref={notificationMenuRef}>
+          <button
+            type="button"
+            onClick={() => {
+              const willOpen = !notificationsOpen;
+              setNotificationsOpen(willOpen);
+              if (willOpen) {
+                dispatch(fetchNotifications(50));
+                dispatch(fetchNotificationPreferences());
+              }
+            }}
+            className="relative rounded-lg p-2 text-text-secondary hover:bg-lavender focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+            aria-expanded={notificationsOpen}
+            aria-haspopup="dialog"
+          >
+            <Bell size={20} />
+            {unreadCount > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold text-white">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+          </button>
+          {notificationsOpen && <div role="dialog" aria-label="Notification menu" className="absolute right-0 top-full z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-border bg-card shadow-xl">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <div>
+                <h2 className="font-semibold text-text-main">Notifications</h2>
+                <p className="text-xs text-text-secondary">{unreadCount} unread</p>
+              </div>
+              <button type="button" disabled={!unreadCount} onClick={() => dispatch(markAllRead())} className="text-xs font-medium text-primary hover:underline disabled:text-text-secondary disabled:no-underline">Mark all read</button>
+            </div>
+            <div className="max-h-80 overflow-y-auto">
+              {notifications.length ? notifications.slice(0, 8).map((notification) => <NotificationItem key={notification.id} notification={notification} compact onRead={(id) => { dispatch(markRead(id)); setNotificationsOpen(false); }} />) : (
+                <p className="px-4 py-8 text-center text-sm text-text-secondary">No notifications yet.</p>
+              )}
+            </div>
+            <div className="space-y-3 border-t border-border p-4">
+              {notificationError && <p role="alert" className="text-xs text-error">{notificationError}</p>}
+              <label className="flex cursor-pointer items-center justify-between gap-3 text-sm text-text-main">
+                <span>Email updates</span>
+                <input
+                  type="checkbox"
+                  checked={preferences.emailEnabled}
+                  disabled={preferencesLoading}
+                  onChange={(event) => dispatch(saveNotificationPreferences({ emailEnabled: event.target.checked }))}
+                  className="h-4 w-4 accent-primary focus:ring-primary"
+                />
+              </label>
+              {!emailDeliveryConfigured && <p className="text-xs text-text-secondary">Email delivery is not configured on this server yet.</p>}
+              <Link to="/notifications" onClick={() => setNotificationsOpen(false)} className="block text-sm font-medium text-primary hover:underline">View all notifications</Link>
+            </div>
+          </div>}
+        </div>
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
           {getInitials(user?.name)}
         </div>
@@ -160,8 +239,9 @@ const PAGE_TITLES = {
   '/skills/assessment': 'Assessment',
   '/learning': 'Learning',
   '/assessment': 'Assessment',
-  '/resume': 'Resume',
-  '/placement': 'Placement',
+  '/resume': 'Resume Analyzer',
+  '/placement': 'Placement Readiness',
+  '/notifications': 'Notifications',
   '/ai-coach': 'AI Coach',
   '/admin': 'Admin',
 };

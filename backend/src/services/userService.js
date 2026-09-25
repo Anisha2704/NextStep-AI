@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import { publishNotification } from './notificationService.js';
 
 const PROFILE_WEIGHTS = {
   basicInfo: 15,
@@ -113,13 +114,14 @@ export const getProfile = async (userId) => {
 };
 
 export const updateProfile = async (userId, updates) => {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select('+profileInitialized');
   if (!user) {
     const error = new Error('User not found');
     error.statusCode = 404;
     throw error;
   }
 
+  const isFirstSetup = user.profileInitialized !== true;
   const allowedFields = [
     'name',
     'bio',
@@ -147,6 +149,15 @@ export const updateProfile = async (userId, updates) => {
   const profile = user.toSafeObject();
   profile.profileInitialized = true;
   profile.profileCompletion = calculateProfileCompletion(user);
+  if (isFirstSetup) {
+    await publishNotification({
+      userId,
+      type: 'profile',
+      title: 'Student profile created',
+      message: 'Your profile is ready. Add your skills, education, and career goals to improve recommendations.',
+      link: '/profile',
+    });
+  }
   return profile;
 };
 
@@ -178,6 +189,13 @@ export const createProfile = async (userId, profileData) => {
   const profile = user.toSafeObject();
   profile.profileInitialized = true;
   profile.profileCompletion = calculateProfileCompletion(user);
+  await publishNotification({
+    userId,
+    type: 'profile',
+    title: 'Student profile created',
+    message: 'Your profile is ready. Add your skills, education, and career goals to improve recommendations.',
+    link: '/profile',
+  });
   return profile;
 };
 

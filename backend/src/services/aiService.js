@@ -161,3 +161,52 @@ export const generateLearningRoadmap = async (profilePayload) => {
   }
 };
 
+const resumeServiceError = (statusCode, message) => Object.assign(new Error(message), { statusCode });
+
+const requestResumeService = async (path, options) => {
+  const token = process.env.AI_SERVICE_INTERNAL_TOKEN;
+  if (!token) throw resumeServiceError(503, 'Resume analysis is currently unavailable.');
+
+  try {
+    const response = await fetch(`${AI_SERVICE_URL}${path}`, {
+      ...options,
+      headers: { ...(options.headers || {}), 'X-AI-Service-Token': token },
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      const statusCode = [400, 429, 504].includes(response.status)
+        ? response.status
+        : response.status >= 500 || response.status === 401 ? 503 : 502;
+      throw resumeServiceError(statusCode, statusCode === 429
+        ? 'Gemini’s resume-analysis quota has been reached. Try again after it resets or enable billing/increased quota for the Google AI project.'
+        : statusCode === 504
+          ? 'Resume analysis timed out. Please try again.'
+          : statusCode === 400 && typeof payload.detail === 'string'
+            ? payload.detail
+            : 'Resume analysis is currently unavailable.');
+    }
+    return await response.json();
+  } catch (error) {
+    if (error.statusCode) throw error;
+    if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+      throw resumeServiceError(504, 'Resume analysis timed out. Please try again.');
+    }
+    console.error('Failed to communicate with FastAPI resume service:', error.message);
+    throw resumeServiceError(503, 'Resume analysis is currently unavailable.');
+  }
+};
+
+export const analyzeResumeText = async ({ resumeText, targetRole }) => requestResumeService('/resume/analyze', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ resumeText, targetRole }),
+});
+
+export const analyzeResumeFile = async ({ fileBuffer, fileName, contentType, targetRole }) => {
+  const form = new FormData();
+  form.append('file', new Blob([fileBuffer], { type: contentType }), fileName);
+  form.append('targetRole', targetRole || '');
+  return requestResumeService('/resume/analyze-file', { method: 'POST', body: form });
+};
+

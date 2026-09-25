@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Assessment from '../models/Assessment.js';
 import AssessmentResult from '../models/AssessmentResult.js';
+import { publishNotification } from './notificationService.js';
 
 const serviceError = (statusCode, message) => Object.assign(new Error(message), { statusCode });
 
@@ -146,6 +147,14 @@ export const submitAssessment = async (userId, assessmentId, answers) => {
     skillBreakdown,
     answers: answerSnapshots,
     submittedAt: new Date(),
+  });
+
+  await publishNotification({
+    userId,
+    type: 'assessment',
+    title: 'Assessment results are ready',
+    message: `Your ${assessment.title} assessment is complete. You scored ${percentage}%${percentage >= assessment.passingScore ? ' and passed' : ''}.`,
+    link: '/assessment',
   });
 
   return serializeResult(result);

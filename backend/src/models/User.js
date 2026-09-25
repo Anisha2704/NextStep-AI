@@ -76,6 +76,9 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'admin'],
       default: 'student',
     },
+    notificationPreferences: {
+      emailEnabled: { type: Boolean, default: true },
+    },
     experienceLevel: {
       type: String,
       enum: ['', ...EXPERIENCE_LEVELS],

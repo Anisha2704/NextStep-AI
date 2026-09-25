@@ -4,6 +4,9 @@ import userReducer from './slices/userSlice';
 import aiReducer from './slices/aiSlice';
 import learningReducer from './slices/learningSlice';
 import assessmentReducer from './slices/assessmentSlice';
+import resumeReducer from './slices/resumeSlice';
+import placementReducer from './slices/placementSlice';
+import notificationReducer from './slices/notificationSlice';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +15,9 @@ const store = configureStore({
     ai: aiReducer,
     learning: learningReducer,
     assessments: assessmentReducer,
+    resume: resumeReducer,
+    placement: placementReducer,
+    notifications: notificationReducer,
   },
 });
 

@@ -1,6 +1,7 @@
 import { analyzeSkillGap } from '../services/aiService.js';
 import { sendSuccess, sendError } from '../utils/response.js';
 import SkillGap from '../models/SkillGap.js';
+import { publishNotification } from '../services/notificationService.js';
 
 /**
  * Controller to analyze skill gaps for the authenticated user against a target role.
@@ -70,6 +71,13 @@ export const analyzeSkillGapController = async (req, res, next) => {
       },
       { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
     );
+    await publishNotification({
+      userId: user._id,
+      type: 'skill_gap',
+      title: 'Skill gap analysis is ready',
+      message: `Your skill gap analysis for ${profilePayload.targetRole} has been saved and can be used to guide your learning roadmap.`,
+      link: '/skills',
+    });
 
     return sendSuccess(res, 200, 'Skill gap analysis completed successfully', aiResponse);
   } catch (error) {

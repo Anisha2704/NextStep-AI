@@ -1,5 +1,6 @@
 import { getCareerRecommendations } from '../services/aiService.js';
 import { sendSuccess, sendError } from '../utils/response.js';
+import { publishNotification } from '../services/notificationService.js';
 
 /**
  * Controller to fetch AI-powered career recommendations for the authenticated user.
@@ -47,6 +48,13 @@ export const getCareerRecommendationsController = async (req, res, next) => {
     };
 
     const aiResponse = await getCareerRecommendations(profilePayload);
+    await publishNotification({
+      userId: user._id,
+      type: 'career',
+      title: 'Career guidance is ready',
+      message: `Your career guidance${targetRole ? ` for ${targetRole}` : ''} is ready to review.`,
+      link: '/career',
+    });
 
     return sendSuccess(res, 200, 'Career recommendations retrieved successfully', aiResponse);
   } catch (error) {

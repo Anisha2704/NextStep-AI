@@ -7,6 +7,9 @@ import userRoutes from './routes/userRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import learningRoutes from './routes/learningRoutes.js';
 import assessmentRoutes from './routes/assessmentRoutes.js';
+import resumeRoutes from './routes/resumeRoutes.js';
+import placementRoutes from './routes/placementRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { sendSuccess } from './utils/response.js';
 
@@ -33,6 +36,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/learning', learningRoutes);
 app.use('/api/assessments', assessmentRoutes);
+app.use('/api/resume', resumeRoutes);
+app.use('/api/placement', placementRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use(errorHandler);
 
