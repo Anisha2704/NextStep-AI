@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import AuthLayout from '../layouts/AuthLayout';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
@@ -14,6 +15,13 @@ import ResumePage from '../pages/resume/ResumePage';
 import PlacementPage from '../pages/placement/PlacementPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
 import NotificationsPage from '../pages/notifications/NotificationsPage';
+import AdminLayout from '../layouts/AdminLayout';
+import AdminPage from '../pages/admin/AdminPage';
+
+const AdminOnly = ({ children }) => {
+  const { user } = useSelector((state) => state.auth);
+  return user?.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
+};
 
 const AppRoutes = () => {
   return (
@@ -53,7 +61,10 @@ const AppRoutes = () => {
         <Route path="/placement" element={<PlacementPage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/ai-coach" element={<PlaceholderPage title="AI Career Assistant" />} />
-        <Route path="/admin" element={<PlaceholderPage title="Admin Dashboard" />} />
+      </Route>
+
+      <Route element={<ProtectedRoute><AdminOnly><AdminLayout /></AdminOnly></ProtectedRoute>}>
+        <Route path="/admin" element={<AdminPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
