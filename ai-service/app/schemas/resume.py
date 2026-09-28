@@ -32,7 +32,9 @@ class ResumeSectionReview(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     section: str = Field(min_length=2, max_length=80)
-    status: str = Field(pattern="^(strong|needs_work|missing)$")
+    # Literal produces an explicit JSON Schema enum for Gemini structured output.
+    # A regex pattern alone is not consistently enforced by the provider.
+    status: Literal["strong", "needs_work", "missing"]
     score: int = Field(ge=0, le=100)
     feedback: str = Field(min_length=5, max_length=500)
 

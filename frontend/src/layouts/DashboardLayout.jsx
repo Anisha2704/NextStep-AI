@@ -15,6 +15,7 @@ import {
   X,
   Bell,
   Search,
+  ShieldCheck,
 } from 'lucide-react';
 import { logout } from '../store/slices/authSlice';
 import Logo from '../components/common/Logo';
@@ -38,6 +39,7 @@ const iconMap = {
   ClipboardCheck,
   FileText,
   Target,
+  ShieldCheck,
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -57,7 +59,7 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-        {NAV_ITEMS.map((item) => {
+        {[...NAV_ITEMS, ...(user?.role === 'admin' ? [{ label: 'Admin panel', path: '/admin', icon: 'ShieldCheck' }] : [])].map((item) => {
           const Icon = iconMap[item.icon];
           return (
             <NavLink
