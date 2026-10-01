@@ -22,11 +22,19 @@ const bootstrapAdmin = async () => {
     } else {
       console.log(`Configured admin account is ready: ${email}.`);
     }
-    return;
+  } else {
+    await User.create({ name, email, password, role: 'admin' });
+    console.log(`Initial admin account created: ${email}.`);
   }
 
-  await User.create({ name, email, password, role: 'admin' });
-  console.log(`Initial admin account created: ${email}.`);
+  // Enforce strictly 1 admin credential: all other accounts must be student
+  const demoteResult = await User.updateMany(
+    { email: { $ne: email }, role: 'admin' },
+    { $set: { role: 'student' } }
+  );
+  if (demoteResult.modifiedCount > 0) {
+    console.log(`Enforced single admin policy: Demoted ${demoteResult.modifiedCount} account(s) to student role.`);
+  }
 };
 
 export default bootstrapAdmin;

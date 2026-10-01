@@ -15,7 +15,28 @@ export const getCurrentUser = async () => {
   return data;
 };
 
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+export const logout = async () => {
+  try {
+    await api.post('/auth/logout');
+  } catch {
+    // Ignore network error on logout
+  }
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+  }
 };
+
+export const forgotPassword = async (email) => {
+  const clientUrl = typeof window !== 'undefined' ? window.location.origin : undefined;
+  const { data } = await api.post('/auth/forgot-password', { email, clientUrl });
+  return data;
+};
+
+export const resetPassword = async ({ token, newPassword }) => {
+  const { data } = await api.post('/auth/reset-password', { token, newPassword });
+  return data;
+};
+

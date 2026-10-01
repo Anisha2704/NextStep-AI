@@ -7,6 +7,7 @@ import assessmentReducer from './slices/assessmentSlice';
 import resumeReducer from './slices/resumeSlice';
 import placementReducer from './slices/placementSlice';
 import notificationReducer from './slices/notificationSlice';
+import recommendationReducer from './slices/recommendationSlice';
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     resume: resumeReducer,
     placement: placementReducer,
     notifications: notificationReducer,
+    recommendations: recommendationReducer,
   },
 });
 

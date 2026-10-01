@@ -11,6 +11,7 @@ import resumeRoutes from './routes/resumeRoutes.js';
 import placementRoutes from './routes/placementRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import recommendationRoutes from './routes/recommendationRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 import { sendSuccess } from './utils/response.js';
 
@@ -18,9 +19,27 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://192.168.0.111:5173',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        /^http:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(
+          origin
+        )
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
   })
 );
@@ -41,6 +60,7 @@ app.use('/api/resume', resumeRoutes);
 app.use('/api/placement', placementRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/recommendations', recommendationRoutes);
 
 app.use(errorHandler);
 

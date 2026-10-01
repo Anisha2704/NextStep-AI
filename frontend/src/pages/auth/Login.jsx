@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Eye, EyeOff } from 'lucide-react';
@@ -10,12 +10,22 @@ import Alert from '../../components/ui/Alert';
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [validationErrors, setValidationErrors] = useState({});
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const validate = () => {
     const errors = {};
@@ -32,9 +42,20 @@ const Login = () => {
     dispatch(clearError());
     if (!validate()) return;
 
-    const result = await dispatch(loginUser(form));
+    const result = await dispatch(
+      loginUser({
+        email: form.email,
+        password: form.password,
+        rememberMe,
+      })
+    );
     if (loginUser.fulfilled.match(result)) {
-      navigate('/dashboard');
+      const loggedUser = result.payload?.user;
+      if (loggedUser?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     }
   };
 
@@ -82,7 +103,7 @@ const Login = () => {
         </div>
 
         <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-text-secondary">
+          <label className="flex items-center gap-2 text-sm text-text-secondary cursor-pointer">
             <input
               type="checkbox"
               checked={rememberMe}
@@ -91,9 +112,12 @@ const Login = () => {
             />
             Remember me
           </label>
-          <span className="cursor-not-allowed text-sm text-primary/50">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-medium text-primary hover:text-primary-bright transition-colors"
+          >
             Forgot password?
-          </span>
+          </Link>
         </div>
 
         <Button type="submit" loading={loading} className="w-full" size="lg">
@@ -105,6 +129,17 @@ const Login = () => {
         Don&apos;t have an account?{' '}
         <Link to="/register" className="font-medium text-primary hover:text-primary-bright">
           Create account
+        </Link>
+      </p>
+
+      <p className="mt-4 text-center text-xs text-text-secondary">
+        By continuing, you agree to our{' '}
+        <Link to="/terms-of-service" className="font-medium text-primary hover:underline">
+          Terms of Service
+        </Link>{' '}
+        and{' '}
+        <Link to="/privacy-policy" className="font-medium text-primary hover:underline">
+          Privacy Policy
         </Link>
       </p>
     </div>

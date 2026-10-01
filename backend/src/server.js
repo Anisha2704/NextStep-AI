@@ -8,13 +8,14 @@ import bootstrapAdmin from './services/adminBootstrapService.js';
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 connectDB().then(async () => {
   await bootstrapAdmin();
   await seedAssessmentCatalog();
   startNotificationEmailWorker();
-  app.listen(PORT, () => {
-    console.log(`NextStep AI backend running on port ${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`NextStep AI backend running on http://${HOST}:${PORT}`);
   });
 }).catch((error) => {
   console.error(`Backend startup failed: ${error.message}`);

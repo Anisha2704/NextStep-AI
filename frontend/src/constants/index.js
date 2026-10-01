@@ -54,9 +54,8 @@ export const NAV_ITEMS = [
   { label: 'Dashboard', path: '/dashboard', icon: 'LayoutDashboard' },
   { label: 'Profile', path: '/profile', icon: 'User' },
   { label: 'Career', path: '/career', icon: 'Briefcase' },
+  { label: 'Recommendations', path: '/career/recommendations', icon: 'Sparkles' },
   { label: 'Skills', path: '/skills', icon: 'Brain' },
-
-
   { label: 'Learning', path: '/learning', icon: 'BookOpen' },
   { label: 'Assessment', path: '/assessment', icon: 'ClipboardCheck' },
   { label: 'Resume', path: '/resume', icon: 'FileText' },

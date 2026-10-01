@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import health, career, skills, learning, resume, ai_test, skill_gap
+from app.routes import health, career, skills, learning, resume, ai_test, skill_gap, recommendation
 
 app = FastAPI(
     title="NextStep AI Service",
@@ -24,5 +24,6 @@ app.include_router(skill_gap.router)
 app.include_router(skills.router)
 app.include_router(learning.router)
 app.include_router(resume.router)
+app.include_router(recommendation.router)
 
 

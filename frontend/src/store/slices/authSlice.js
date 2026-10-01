@@ -2,12 +2,39 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { register, login, getCurrentUser, logout as logoutService } from '../../services/authService';
 import { getErrorMessage } from '../../utils';
 
-const storedUser = localStorage.getItem('user');
-const storedToken = localStorage.getItem('token');
+const getStoredUser = () => {
+  try {
+    const raw =
+      typeof window !== 'undefined'
+        ? localStorage.getItem('user') || sessionStorage.getItem('user')
+        : null;
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+const getStoredToken = () => {
+  return typeof window !== 'undefined'
+    ? localStorage.getItem('token') || sessionStorage.getItem('token')
+    : null;
+};
+
+const clearStoredAuth = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+  }
+};
+
+const storedUser = getStoredUser();
+const storedToken = getStoredToken();
 
 const initialState = {
-  user: storedUser ? JSON.parse(storedUser) : null,
-  token: storedToken || null,
+  user: storedUser,
+  token: storedToken,
   isAuthenticated: !!storedToken,
   loading: false,
   error: null,
@@ -59,6 +86,7 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
+      clearStoredAuth();
     },
     clearError: (state) => {
       state.error = null;
@@ -75,8 +103,11 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
+        // Default to persistent storage for registration
         localStorage.setItem('token', action.payload.token);
         localStorage.setItem('user', JSON.stringify(action.payload.user));
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -91,8 +122,21 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
-        localStorage.setItem('token', action.payload.token);
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+
+        const rememberMe = action.meta.arg?.rememberMe;
+        if (rememberMe) {
+          // Persistent storage: persists across browser close/reopen
+          localStorage.setItem('token', action.payload.token);
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('user');
+        } else {
+          // Session storage: discarded when browser/tab session ends
+          sessionStorage.setItem('token', action.payload.token);
+          sessionStorage.setItem('user', JSON.stringify(action.payload.user));
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -105,15 +149,18 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        if (localStorage.getItem('token')) {
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+        } else if (sessionStorage.getItem('token')) {
+          sessionStorage.setItem('user', JSON.stringify(action.payload.user));
+        }
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.loading = false;
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        clearStoredAuth();
       });
   },
 });

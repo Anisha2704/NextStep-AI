@@ -16,6 +16,7 @@ import {
   Bell,
   Search,
   ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 import { logout } from '../store/slices/authSlice';
 import Logo from '../components/common/Logo';
@@ -40,6 +41,7 @@ const iconMap = {
   FileText,
   Target,
   ShieldCheck,
+  Sparkles,
 };
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -96,6 +98,34 @@ const Sidebar = ({ isOpen, onClose }) => {
             <p className="truncate text-xs text-text-secondary">{user?.email}</p>
           </div>
         </div>
+        <NavLink
+          to="/privacy-policy"
+          onClick={onClose}
+          className={({ isActive }) =>
+            `flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors ${
+              isActive
+                ? 'bg-primary/10 font-medium text-primary'
+                : 'text-text-secondary hover:bg-lavender hover:text-text-main'
+            }`
+          }
+        >
+          <ShieldCheck size={16} />
+          Privacy Policy
+        </NavLink>
+        <NavLink
+          to="/terms-of-service"
+          onClick={onClose}
+          className={({ isActive }) =>
+            `flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors ${
+              isActive
+                ? 'bg-primary/10 font-medium text-primary'
+                : 'text-text-secondary hover:bg-lavender hover:text-text-main'
+            }`
+          }
+        >
+          <FileText size={16} />
+          Terms of Service
+        </NavLink>
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-error/10 hover:text-error"
@@ -261,8 +291,41 @@ const DashboardLayout = () => {
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} title={title} />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8 flex flex-col justify-between">
+          <div>
+            <Outlet />
+          </div>
+          <footer className="mt-12 border-t border-border pt-6 pb-2 text-xs text-text-secondary">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p>© 2026 NextStep AI. All rights reserved.</p>
+              <nav className="flex items-center gap-6">
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `transition-colors ${isActive ? 'text-primary font-medium' : 'hover:text-primary'}`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink
+                  to="/privacy-policy"
+                  className={({ isActive }) =>
+                    `transition-colors ${isActive ? 'text-primary font-medium' : 'hover:text-primary'}`
+                  }
+                >
+                  Privacy Policy
+                </NavLink>
+                <NavLink
+                  to="/terms-of-service"
+                  className={({ isActive }) =>
+                    `transition-colors ${isActive ? 'text-primary font-medium' : 'hover:text-primary'}`
+                  }
+                >
+                  Terms of Service
+                </NavLink>
+              </nav>
+            </div>
+          </footer>
         </main>
       </div>
     </div>

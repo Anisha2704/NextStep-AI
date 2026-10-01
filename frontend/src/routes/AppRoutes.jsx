@@ -5,6 +5,8 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
+import ForgotPassword from '../pages/auth/ForgotPassword';
+import ResetPassword from '../pages/auth/ResetPassword';
 import Dashboard from '../pages/dashboard/Dashboard';
 import Profile from '../pages/profile/Profile';
 import CareerPage from '../pages/career/CareerPage';
@@ -14,23 +16,36 @@ import AssessmentPage from '../pages/assessment/AssessmentPage';
 import ResumePage from '../pages/resume/ResumePage';
 import PlacementPage from '../pages/placement/PlacementPage';
 import PlaceholderPage from '../pages/PlaceholderPage';
+import RecommendationsPage from '../pages/career/RecommendationsPage';
 import NotificationsPage from '../pages/notifications/NotificationsPage';
 import AdminLayout from '../layouts/AdminLayout';
 import AdminPage from '../pages/admin/AdminPage';
+import PrivacyPolicy from '../pages/PrivacyPolicy';
+import TermsOfService from '../pages/TermsOfService';
 
 const AdminOnly = ({ children }) => {
   const { user } = useSelector((state) => state.auth);
   return user?.role === 'admin' ? children : <Navigate to="/dashboard" replace />;
 };
 
+const RootRedirect = () => {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return user?.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />;
+};
+
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<RootRedirect />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-of-service" element={<TermsOfService />} />
 
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
       <Route
@@ -46,7 +61,7 @@ const AppRoutes = () => {
 
         <Route
           path="/career/recommendations"
-          element={<PlaceholderPage title="Career Recommendations" />}
+          element={<RecommendationsPage />}
         />
         <Route path="/career/roadmap" element={<PlaceholderPage title="Career Roadmap" />} />
         <Route path="/skills" element={<SkillsPage />} />

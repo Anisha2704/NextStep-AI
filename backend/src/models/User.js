@@ -76,6 +76,8 @@ const userSchema = new mongoose.Schema(
       enum: ['student', 'admin'],
       default: 'student',
     },
+    passwordResetToken: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
     notificationPreferences: {
       emailEnabled: { type: Boolean, default: true },
     },

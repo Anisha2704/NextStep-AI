@@ -210,3 +210,102 @@ export const analyzeResumeFile = async ({ fileBuffer, fileName, contentType, tar
   return requestResumeService('/resume/analyze-file', { method: 'POST', body: form });
 };
 
+/**
+ * Sends student profile and available catalog resources to FastAPI Gemini recommendation service.
+ * @param {Object} payload - { user_profile, available_courses, available_certifications }
+ * @returns {Promise<Object>} Structured recommendation response
+ */
+export const getCourseAndCertRecommendations = async (payload) => {
+  const url = `${AI_SERVICE_URL}/api/ai/recommendations/generate`;
+  const token = process.env.AI_SERVICE_INTERNAL_TOKEN;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'X-AI-Service-Token': token } : {}),
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: response.statusText };
+      }
+      console.error(`AI recommendation service error ${response.status}:`, errorData);
+      const error = new Error(
+        errorData.detail?.message || errorData.detail || errorData.message || 'AI recommendation generation failed.'
+      );
+      error.statusCode = response.status >= 500 ? 503 : response.status;
+      throw error;
+    }
+
+    return await response.json();
+  } catch (err) {
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      const error = new Error('AI recommendation service timed out. Please try again.');
+      error.statusCode = 504;
+      throw error;
+    }
+    if (err.statusCode) throw err;
+    console.error('Failed to communicate with AI recommendation service:', err.message);
+    const error = new Error('AI recommendation service is currently unavailable.');
+    error.statusCode = 503;
+    throw error;
+  }
+};/**
+ * Sends the user's complete career profile to the FastAPI /full endpoint.
+ * Returns 3 job + 3 real course + 3 real certification recommendations via Gemini.
+ * @param {Object} userProfilePayload - Extended user profile payload
+ * @returns {Promise<Object>} { jobRecommendations, courseRecommendations, certificationRecommendations }
+ */
+export const getFullCareerRecommendations = async (userProfilePayload) => {
+  const url = `${AI_SERVICE_URL}/api/ai/recommendations/full`;
+  const token = process.env.AI_SERVICE_INTERNAL_TOKEN;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'X-AI-Service-Token': token } : {}),
+      },
+      body: JSON.stringify(userProfilePayload),
+      signal: AbortSignal.timeout(90000), // 90s — job+course+cert takes longer
+    });
+
+    if (!response.ok) {
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: response.statusText };
+      }
+      console.error(`Full recommendation service error ${response.status}:`, errorData);
+      const error = new Error(
+        errorData.detail?.message || errorData.detail || errorData.message || 'Full recommendation generation failed.'
+      );
+      error.statusCode = response.status >= 500 ? 503 : response.status;
+      throw error;
+    }
+
+    return await response.json();
+  } catch (err) {
+    if (err.name === 'AbortError' || err.name === 'TimeoutError') {
+      const error = new Error('Full recommendation service timed out. Please try again.');
+      error.statusCode = 504;
+      throw error;
+    }
+    if (err.statusCode) throw err;
+    console.error('Failed to communicate with full recommendation service:', err.message);
+    const error = new Error('Full recommendation service is currently unavailable.');
+    error.statusCode = 503;
+    throw error;
+  }
+};
+

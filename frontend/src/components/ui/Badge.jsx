@@ -4,6 +4,7 @@ const Badge = ({ children, variant = 'default', className = '' }) => {
     cyan: 'bg-cyan-soft text-cyan',
     success: 'bg-success/10 text-success',
     warning: 'bg-warning/10 text-warning',
+    error: 'bg-error/10 text-error',
     outline: 'border border-border text-text-secondary bg-card',
   };
 
